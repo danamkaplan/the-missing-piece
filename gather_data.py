@@ -19,7 +19,7 @@ missing_game_ids = []
 found_game_ids = []
 every_10k = 0
 min_id = 0
-for id_ in tqdm(range(1, 218780)):
+for id_ in tqdm(range(10872, 218780)):
     if every_10k == 0:
         min_id = id_
     try:
@@ -34,7 +34,7 @@ for id_ in tqdm(range(1, 218780)):
         write_json(min_id, id_, games)
         min_id = 0
         games = {}
-
+        every_10k = 0
 
 write_json('first', 'last', games)
 f = open('./data/found_games.txt', 'wb')
