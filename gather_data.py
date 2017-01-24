@@ -1,45 +1,48 @@
 from boardgamegeek import BoardGameGeek
 from tqdm import tqdm
 import json
+import sys
 
 # BGG object
-bgg = BoardGameGeek()
+bgg = BoardGameGeek(requests_per_minute=60)
 
 
 # latest game 218780
 def write_json(first, last, game_dict):
-        j = json.dumps(games)
-        loc = './data/games_{}_{}.json'.format(first, last)
-        f = open(loc, 'wb')
-        f.write(j)
-        f.close()
+    j = json.dumps(game_dict)
+    loc = './data/games_{}_{}.json'.format(first, last)
+    f = open(loc, 'wb')
+    f.write(j)
+    f.close()
 
-games = {}
-missing_game_ids = []
-found_game_ids = []
-every_10k = 0
-min_id = 0
-for id_ in tqdm(range(10872, 218780)):
-    if every_10k == 0:
-        min_id = id_
-    try:
-        game = bgg.game(game_id = id_)
-        games[id_] = game.data()
-        every_10k += 1
-        found_game_ids.append(id_)
-    except:
-        missing_game_ids.append(id_)
+def pull_game_data(start, stop):
+    games = {}
+    missing_game_ids = []
+    found_game_ids = []
+    loops = 0
+    for id_ in tqdm(xrange(start, stop+1)):
+        loops += 1
+        try:
+            game = bgg.game(game_id = id_)
+            games[id_] = game.data()
+            found_game_ids.append(id_)
+        except:
+            missing_game_ids.append(id_)
+        if loops == 10000:
+            loops = 0
+            write_json(id_, id_, games)
+            games = {}
 
-    if every_10k == 10000:
-        write_json(min_id, id_, games)
-        min_id = 0
-        games = {}
-        every_10k = 0
 
-write_json('first', 'last', games)
-f = open('./data/found_games.txt', 'wb')
-f.write(found_game_ids)
-f.close()
-f = open('./data/missing_games.txt', 'wb')
-f.write(missing_game_ids)
-f.close()
+    write_json(start, 'end', games)
+    f = open('./data/found_games_{}_{}.txt'.format(start, stop), 'wb')
+    f.write(', '.join([str(i) for i in found_game_ids]))
+    f.close()
+    f = open('./data/missing_games_{}_{}.txt'.format(start, stop), 'wb')
+    f.write(', '.join([str(i) for i in missing_game_ids]))
+    f.close()
+
+if __name__=='__main__':
+    start = int(sys.argv[1])
+    stop = int(sys.argv[2])
+    pull_game_data(start, stop)
