@@ -12,7 +12,7 @@ def parse_data(j_dict, field):
     Returns:
     game_dict - dictgame_id
     """ 
-    return {int(id_): j_dict[key][field] for key  in j_dict.keys()}
+    return {int(id_): j_dict[key][field] for key in j_dict.keys()}
 
 def gather_files(folder):
     files = os.listdir(folder)
