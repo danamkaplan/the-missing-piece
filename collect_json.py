@@ -12,13 +12,7 @@ def parse_data(j_dict, field):
     Returns:
     game_dict - dictgame_id
     """ 
-    return {int(id_): j_dict[key][field] for key in j_dict.keys()}
-
-def gather_files(folder):
-    files = os.listdir(folder)
-    for f in files:
-        if f[0] == 'g':
-            pass
+    return {int(key): j_dict[key][field] for key in j_dict.keys()}
 
 def merge_dicts(*dict_args):
     """
@@ -30,5 +24,22 @@ def merge_dicts(*dict_args):
         result.update(dictionary)
     return result
 
-def load_data(field):
-    pass    
+def load_data(location_str):
+    f = open(location_str, 'r')
+    j_to_dict = json.load(f)
+    f.close()
+    return(j_to_dict)
+
+def gather_files(folder):
+    files = os.listdir(folder)
+    list_of_game_dicts = []
+    for f in files:
+        f = folder + "/" + f
+        print f
+        if f[-4:] == 'json':
+            parsed_dict = parse_data(load_data(f), 'mechanics')
+            print parsed_dict
+            list_of_game_dicts.append(parsed_dict)
+    
+    return merge_dicts(*list_of_game_dicts)
+
