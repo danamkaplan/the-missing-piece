@@ -1,4 +1,5 @@
 from boardgamegeek import BoardGameGeek
+from collections import defaultdict
 from tqdm import tqdm
 import json
 import sys
@@ -42,4 +43,8 @@ def pull_game_data(start, stop):
 if __name__=='__main__':
     start = int(sys.argv[1])
     stop = int(sys.argv[2])
-    pull_game_data(start, stop)
+    method = sys.argv[3]
+    if method == 'library':
+        pull_game_data(start, stop)
+    else:
+        pass #do the xml thing
