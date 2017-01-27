@@ -6,6 +6,7 @@ import sys
 import requests
 from time import sleep
 from xml.etree import ElementTree
+from collect_json import merge_dicts
 
 # BGG object
 bgg = BoardGameGeek(requests_per_minute=90)
@@ -24,29 +25,12 @@ def write_missing(missing_game_ids, start, stop):
     f.write(', '.join([str(i) for i in missing_game_ids]))
     f.close()
 
-def pull_game_data(start, stop):
-    games = {}
-    missing_game_ids = []
-    found_game_ids = []
-    loops = 0
-    for id_ in tqdm(xrange(start, stop+1)):
-        loops += 1
-        try:
-            game = bgg.game(game_id = id_)
-            games[id_] = game.data()
-            game = None
-        except:
-            missing_game_ids.append(id_)
-        if loops == 10000:
-            loops = 0
-            write_json(id_, id_, games)
-            games = {}
-            write_missing(missing_game_ids, id_, id_)
 
 
 def evaluate_xml(g):
     #turn xml pull into the same format as json
     game_dict = {}
+    #import pdb; pdb.set_trace()
     game_dict['mechanics'] =unpack_list(g['boardgamemechanic'])
     game_dict['playingtime'] = int(g['playingtime'])
     game_dict['id'] = int(g['@objectid'])
@@ -65,7 +49,8 @@ def evaluate_xml(g):
     game_dict['designers'] = unpack_list(g['boardgamedesigner'])
     game_dict['categories'] = unpack_list(g['boardgamecategory'])
     #game_dict['minage']
-    game_dict['name'] = g['name']
+    if type(g['name']) == list:
+        game_dict['name'] = g['name'][0]['#text']
     #game_dict['alternative_names']
     #game_dict['expands']
     
@@ -87,25 +72,32 @@ def evaluate_xml(g):
     
     #rank transformation
     rank_dict = []
-    rank_dict[0] = {
-            'friendlyname': 'Board Game Rank',
-            'name': 'boardgame',
-            'value': stats[0]['@value']
-            }
-    rank_dict[1] = {
-            'friendlyname': 'Strategy Game Rank',
-            'name': 'strategygames',
-            'value': stats[1]['@value']
-            }
+    try:
+        rank_dict.append({
+                'friendlyname': 'Board Game Rank',
+                'name': 'boardgame',
+                'value': stats['ranks']['rank'][0]['@value']
+                })
+        rank_dict.append({
+                'friendlyname': 'Strategy Game Rank',
+                'name': 'strategygames',
+                'value': stats['ranks']['rank'][1]['@value']
+                })
+    except:
+        rank_dict.append({
+                'friendlyname': 'Strategy Game Rank',
+                'name': 'strategygames',
+                'value': stats['ranks']['rank']['@value']
+                })
     game_dict['ranks'] = rank_dict  
 
-    return game_dict[id], game_dict
+    return game_dict['id'], game_dict
 
 def unpack_list(obj_to_eval):
     if type(obj_to_eval) == list:
         return [item['#text'] for item in obj_to_eval]
     else:
-        return obj_to_eval
+        return [obj_to_eval['#text']]
 
 def etree_to_dict(t):
 
@@ -135,23 +127,61 @@ def format_url(start, stop):
     ids_ = ",".join([str(n) for  n in range(start, stop+1)])
     return url+ids_+'&stats=1'
 
-def pull_game_data_xml(start, stop):
+def grab_game_data_xml(start, stop):
     url = format_url(start, stop)
     r = requests.get(url)
     tree = ElementTree.fromstring(r.content)
     many_game_dict = etree_to_dict(tree)
     #parse the xml now
+    list_of_game_dicts = []
     for game in many_game_dict['boardgames']['boardgame']:
-        import pdb; pdb.set_trace()
         try:
-            evaluate_xml(game['boardgame'])
+            list_of_game_dicts.append(evaluate_xml(game))
         except:
-            print game
             print 'error'
+    return(list_of_game_dicts)
 
-    return(many_game_dict.keys())
+def pull_game_data_xml(start, stop):
+    id_ = start
+    loops = 0
+    games = {}
+    while id_ < stop:
+        #pull from api in batches of 100
+        new_game_dict = grab_game_data_xml(id_, id_+100)
+        games = merge_dicts(games, new_game_dict)
+        id_ = id_ + 100
+        loops = loops + 100 
+        if loops == 10000:
+            loops = 0
+            write_json(id_ - 100, id_, games)
+            games = {}
+        #be nice to that api
+        sleep(4)
 
 
+    #get that last bit
+    write_json(id_ - 100, id_, games)
+
+    
+    
+def pull_game_data(start, stop):
+    games = {}
+    missing_game_ids = []
+    found_game_ids = []
+    loops = 0
+    for id_ in tqdm(xrange(start, stop+1)):
+        loops += 1
+        try:
+            game = bgg.game(game_id = id_)
+            games[id_] = game.data()
+            game = None
+        except:
+            missing_game_ids.append(id_)
+        if loops == 10000:
+            loops = 0
+            write_json(id_, id_, games)
+            games = {}
+            write_missing(missing_game_ids, id_, id_)
     
 if __name__=='__main__':
     start = int(sys.argv[1])
