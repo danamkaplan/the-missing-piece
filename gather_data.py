@@ -7,6 +7,7 @@ import requests
 from time import sleep
 from xml.etree import ElementTree
 from collect_json import merge_dicts
+from xml_exceptions import evaluate_xml 
 
 # BGG object
 bgg = BoardGameGeek(requests_per_minute=90)
@@ -27,77 +28,6 @@ def write_missing(missing_game_ids, start, stop):
 
 
 
-def evaluate_xml(g):
-    #turn xml pull into the same format as json
-    game_dict = {}
-    #import pdb; pdb.set_trace()
-    game_dict['mechanics'] =unpack_list(g['boardgamemechanic'])
-    game_dict['playingtime'] = int(g['playingtime'])
-    game_dict['id'] = int(g['@objectid'])
-    game_dict['image'] = g['image']
-    #game_dict['expansions'] 
-    #game_dict['artists']
-    game_dict['yearpublished'] = g['yearpublished']
-    game_dict['maxplayers'] = int(g['maxplayers'])
-    game_dict['thumbnail'] = g['thumbnail']
-    game_dict['publishers'] = unpack_list(g['boardgamepublisher'])
-    game_dict['families'] = unpack_list(g['boardgamefamily'])
-    game_dict['description'] = g['description']
-    game_dict['minplayers'] = int(g['minplayers'])
-    #game_dict['expansion']
-    #game_dict['implementations'] = 
-    game_dict['designers'] = unpack_list(g['boardgamedesigner'])
-    game_dict['categories'] = unpack_list(g['boardgamecategory'])
-    #game_dict['minage']
-    if type(g['name']) == list:
-        game_dict['name'] = g['name'][0]['#text']
-    #game_dict['alternative_names']
-    #game_dict['expands']
-    
-    #Utilizing the stats field
-    stats = g['statistics']['ratings']
-    #ratings statistics
-    game_dict['median'] = float(stats['median'])
-    game_dict['numcomments'] = int(stats['numcomments'])
-    game_dict['stddev'] = float(stats['stddev'])
-    game_dict['wishing'] = int(stats['wishing'])
-    game_dict['usersrated'] = int(stats['usersrated'])
-    game_dict['averageweight'] = float(stats['averageweight'])
-    game_dict['trading'] = int(stats['trading'])
-    game_dict['average'] = float(stats['average'])
-    game_dict['owned'] = int(stats['owned'])
-    game_dict['wanting'] = int(stats['wanting'])
-    game_dict['bayesaverage'] = float(stats['bayesaverage'])
-    game_dict['numweights'] = int(stats['numweights'])
-    
-    #rank transformation
-    rank_dict = []
-    try:
-        rank_dict.append({
-                'friendlyname': 'Board Game Rank',
-                'name': 'boardgame',
-                'value': stats['ranks']['rank'][0]['@value']
-                })
-        rank_dict.append({
-                'friendlyname': 'Strategy Game Rank',
-                'name': 'strategygames',
-                'value': stats['ranks']['rank'][1]['@value']
-                })
-    except:
-        rank_dict.append({
-                'friendlyname': 'Strategy Game Rank',
-                'name': 'strategygames',
-                'value': stats['ranks']['rank']['@value']
-                })
-    game_dict['ranks'] = rank_dict  
-
-    return game_dict['id'], game_dict
-
-def unpack_list(obj_to_eval):
-    if type(obj_to_eval) == list:
-        return [item['#text'] for item in obj_to_eval]
-    else:
-        return [obj_to_eval['#text']]
 
 def etree_to_dict(t):
 
@@ -138,25 +68,24 @@ def grab_game_data_xml(start, stop):
         try:
             list_of_game_dicts.append(evaluate_xml(game))
         except:
-            print 'error'
+            pass
     return(list_of_game_dicts)
 
 def pull_game_data_xml(start, stop):
     id_ = start
     loops = 0
     games = {}
-    while id_ < stop:
+    for id_ in tqdm(range(start, stop+1, 100)):
         #pull from api in batches of 100
-        new_game_dict = grab_game_data_xml(id_, id_+100)
+        new_game_dict = grab_game_data_xml(id_, id_+99)
         games = merge_dicts(games, new_game_dict)
-        id_ = id_ + 100
         loops = loops + 100 
         if loops == 10000:
             loops = 0
-            write_json(id_ - 100, id_, games)
+            write_json(id_ - 10000, id_, games)
             games = {}
         #be nice to that api
-        sleep(4)
+        sleep(5)
 
 
     #get that last bit
