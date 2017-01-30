@@ -15,6 +15,9 @@ def parse_data(j_dict, field):
     """
     if field == 'all':
         return {int(key): j_dict[key] for key in j_dict.keys()}
+    elif field == 'combine':
+        return {int(key):
+                set(j_dict[key]['mechanics']+j_dict[key]['categories']) for key in j_dict.keys()}
     else:
         return {int(key): j_dict[key][field] for key in j_dict.keys()}
 
