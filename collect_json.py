@@ -58,14 +58,15 @@ def unravel_dict(d):
     ones = [1]*len(games)
     return games, categories, ones
 
-def create_feature_matrix(ids_, features, ones):
+def create_set_matrix(ids_, features, ones):
     df = pd.DataFrame({'ids': ids_, 'features': features, 'ones':ones})
     feature_matrix = df.pivot(index='ids', columns='features', values='ones')
     feature_matrix.fillna(0, inplace=True)
     return feature_matrix
 
-def data_pipeline(folder, field):
+def data_pipeline(folder, field, set=False):
     merged_dicts = gather_files(folder, field)
-    feature_matrix = create_feature_matrix(*unravel_dict(merged_dicts))
-    
-    return feature_matrix
+    if set:
+        return create_set_matrix(*unravel_dict(merged_dicts))
+    else: 
+        return merged_dicts
