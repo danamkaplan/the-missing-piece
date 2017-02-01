@@ -4,7 +4,11 @@ import json
 from time import sleep
 import sys
 from tqdm import tqdm
-import codecs
+from boardgamegeek import BoardGameGeek
+
+method = 'api'
+bgg = BoardGameGeek()
+
 
 def format_url(guild_id, page_num):
     url = 'https://boardgamegeek.com/xmlapi2/guild?id='+str(guild_id)
@@ -45,20 +49,29 @@ def gather_collections(users):
 
 def write_users(start, stop, user_list):
     location = './data/user_list_{}_{}.txt'.format(start, stop)
-    with codecs.open(location, "w", "utf-8-sig") as f:
-        f.write(', '.join([i for i in user_list]))
-        f.close()
+    f = open(location, 'w')
+    user_list = ', '.join([i for i in user_list])
+    f.write(user_list.encode('utf8'))
+    f.close()
 
 def grab_collection(user_name):
-    url ='https://boardgamegeek.com/xmlapi/collection/username='+user_name+'own=1'
-    r = requests.get(url)
-    tree = ElementTree.fromstring(r.content)
-    collection = etree_to_dict(tree)
-    try:
-        collection = collection['items']['item']
-        return [item['@objectid'] for item in collection]
-    except:
-        return []
+    if method == 'xml':
+        url ='https://boardgamegeek.com/xmlapi/collection/username='+user_name+'own=1'
+        r = requests.get(url)
+        tree = ElementTree.fromstring(r.content)
+        collection = etree_to_dict(tree)
+        try:
+            collection = collection['items']['item']
+            return [item['@objectid'] for item in collection]
+        except:
+            return []
+    else:
+        try:
+            coll_obj = bgg.collection(user_name=user_name)
+            collection = coll_obj.data()['items'] 
+            return [item['id'] for item in collection]
+        except:
+            return []
 
 def parse_user_names(guild_dict):
     users = guild_dict['guild']['members']['member']
@@ -74,6 +87,8 @@ def write_collection_json(first, last, collection_dict):
 if __name__=='__main__':
     start = int(sys.argv[1])
     stop = int(sys.argv[2])
+    global method 
+    method = sys.argv[3]
     users = grab_users(start, stop)
     gather_collections(users)
     

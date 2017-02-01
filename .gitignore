@@ -89,4 +89,4 @@ ENV/
 .ropeproject
 
 # Don't save data files
-data/*
+./data/*
