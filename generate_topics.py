@@ -11,6 +11,10 @@ def create_feature_matrix(folder):
 
 def write_topics_csv(games, features):
     pass 
+
+def generate_topics(feature_matrix):
+    pass
+
 if __name__=='__main__':
     folder = sys.argv[1]
     feature_matrix = create_feature_matrix(folder)
