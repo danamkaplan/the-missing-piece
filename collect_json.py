@@ -41,12 +41,12 @@ def gather_files(folder, field):
     files = os.listdir(folder)
     list_of_game_dicts = []
     for f in files:
-        f = folder + "/" + f
-        if f[-4:] == 'json':
+        if f[:5] == 'games':
+            f = folder + "/" + f
             parsed_dict = parse_data(load_data(f),field)
             list_of_game_dicts.append(parsed_dict)
     
-    return merge_dicts(*list_of_game_dicts)
+    return list_of_game_dicts
 
 def unravel_dict(d):
     games = []
@@ -64,9 +64,18 @@ def create_set_matrix(ids_, features, ones):
     feature_matrix.fillna(0, inplace=True)
     return feature_matrix
 
+def add_player_counts(feature_matrix):
+    pass
+
 def data_pipeline(folder, field, set=False):
-    merged_dicts = gather_files(folder, field)
-    if set:
-        return create_set_matrix(*unravel_dict(merged_dicts))
+    list_of_game_dicts = gather_files(folder, field)
+    merged_dicts = merge_dicts(*list_of_game_dicts)
+    if set: 
+        feature_matrix = create_set_matrix(*unravel_dict(merged_dicts))
+        minplayer_dict = merge_dicts(*gather_files(folder, 'minplayers'))
+        feature_matrix['minplayers'] = pd.Series(minplayer_dict)
+        maxplayer_dict = merge_dicts(*gather_files(folder, 'maxplayers'))
+        feature_matrix['maxplayers'] = pd.Series(maxplayer_dict)
+        return feature_matrix
     else: 
         return merged_dicts
