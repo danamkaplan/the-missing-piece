@@ -9,8 +9,14 @@ from sklearn.decomposition import NMF
 def create_feature_matrix(folder):
     return data_pipeline(folder, 'combine', set=True)
 
-def write_topics_csv():
-    pass 
+def write_topics_csv(folder):
+    np.savetxt(folder + 'W.csv', W, delimiter=',') 
+    np.savetxt(folder + 'H.csv', H, delimiter=',') 
+
+def load_topics_csv(folder):
+    W = np.loadtxt(folder + 'W.csv', delimiter=',') 
+    H = np.loadtxt(folder + 'H.csv', delimiter=',') 
+    return W, H
 
 def normalize_games_to_topics(W):
     return np.apply_along_axis(norm, 1 , W) 
@@ -37,12 +43,14 @@ def generate_topics(feature_matrix):
 def match_topic_to_games(topic_vector):
     pass
 
-def match_topic_to_mechanics(topic_vector):
-    pass
+def match_topic_to_features(feature_topic_vector):
+    return zip(feature_topic_vector, feature_matrix.columns.values)
+    
 
 if __name__=='__main__':
     folder = sys.argv[1]
     feature_matrix = create_feature_matrix(folder)
     W, H = generate_topics(feature_matrix)
+    write_topics_csv('./data/')
 
 

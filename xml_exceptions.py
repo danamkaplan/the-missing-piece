@@ -19,7 +19,7 @@ def evaluate_xml(g):
     if type(g['name']) == list:
         game_dict['name'] = g['name'][0]['#text']
     else:
-        game_dict['name'] = g.get('name', '')
+        game_dict['name'] = g.get('#text', '')
     #game_dict['alterative_names']
     #game_dict['expands']
     
