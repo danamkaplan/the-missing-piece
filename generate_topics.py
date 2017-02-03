@@ -1,6 +1,5 @@
 from collect_json import data_pipeline
 import numpy as np
-import pandas as pd
 import sys
 from sklearn.decomposition import NMF
 
@@ -12,32 +11,36 @@ class Topic_Model(object):
     
     def create_feature_matrix(self, folder):
         # import pdb; pdb.set_trace()        
-        self.feature_matrix = data_pipeline(self.folder, 'combine', set=True)
+        self.feature_matrix = data_pipeline(folder, 'combine', set=True)
         return self.feature_matrix
 
-    def write_feature_matrix_csv(self):
-        np.savetxt(self.folder + '/feature_matrix.csv', W, delimiter=',') 
+    def write_feature_matrix_csv(self, folder):
+        np.savetxt(folder + '/feature_matrix.csv', W, delimiter=',') 
+
+    def load_feature_matrix_csv(self, folder):
+        self.feature_matrix = np.loadtxt(folder + '/feature_matrix.csv', W, delimiter=',') 
+        return self.feature_matrix
 
     def write_topics_csv(self, folder):
-        np.savetxt(folder + '/W.csv', W, delimiter=',') 
-        np.savetxt(folder + '/H.csv', H, delimiter=',') 
+        np.savetxt(folder + '/W.csv', self.W, delimiter=',') 
+        np.savetxt(folder + '/H.csv', self.H, delimiter=',') 
 
     def load_topics_csv(self, folder):
-        W = np.loadtxt(folder + '/W.csv', delimiter=',') 
-        H = np.loadtxt(folder + '/H.csv', delimiter=',') 
-        return W, H
+        self.W = np.loadtxt(folder + '/W.csv', delimiter=',') 
+        self.H = np.loadtxt(folder + '/H.csv', delimiter=',') 
+        return self.W, self.H
 
     def normalize_games_to_topics(self):
-        return np.apply_along_axis(self.norm, 1, self.W) 
-
-    def normalize_features_to_topics(self):
-        return np.apply_along_axis(self.norm, 0, self.H) 
-
-    def normalize_topics_to_games(self):
         return np.apply_along_axis(self.norm, 0, self.W) 
 
-    def normalize_topics_to_features(self):
+    def normalize_features_to_topics(self):
         return np.apply_along_axis(self.norm, 1, self.H) 
+
+    def normalize_topics_to_games(self):
+        return np.apply_along_axis(self.norm, 1, self.W) 
+
+    def normalize_topics_to_features(self):
+        return np.apply_along_axis(self.norm, 0, self.H) 
 
     def norm(vector):
         return vector/sum(vector)
