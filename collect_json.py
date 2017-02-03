@@ -61,7 +61,6 @@ def unravel_dict(d):
 def create_set_matrix(ids_, features, ones):
     df = pd.DataFrame({'ids': ids_, 'features': features, 'ones':ones})
     feature_matrix = df.pivot(index='ids', columns='features', values='ones')
-    feature_matrix.fillna(0, inplace=True)
     return feature_matrix
 
 def add_player_counts(feature_matrix):
@@ -76,6 +75,7 @@ def data_pipeline(folder, field, set=False):
         feature_matrix['minplayers'] = pd.Series(minplayer_dict)
         maxplayer_dict = merge_dicts(*gather_files(folder, 'maxplayers'))
         feature_matrix['maxplayers'] = pd.Series(maxplayer_dict)
+        feature_matrix.fillna(0, inplace=True)
         return feature_matrix
     else: 
         return merged_dicts

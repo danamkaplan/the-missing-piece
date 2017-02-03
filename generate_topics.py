@@ -2,55 +2,66 @@ from collect_json import data_pipeline
 import numpy as np
 import pandas as pd
 import sys
-from scipy.linalg import svd
 from sklearn.decomposition import NMF
 
 
-def create_feature_matrix(folder):
-    return data_pipeline(folder, 'combine', set=True)
-
-def write_topics_csv(folder):
-    np.savetxt(folder + 'W.csv', W, delimiter=',') 
-    np.savetxt(folder + 'H.csv', H, delimiter=',') 
-
-def load_topics_csv(folder):
-    W = np.loadtxt(folder + 'W.csv', delimiter=',') 
-    H = np.loadtxt(folder + 'H.csv', delimiter=',') 
-    return W, H
-
-def normalize_games_to_topics(W):
-    return np.apply_along_axis(norm, 1 , W) 
-
-def normalize_features_to_topics(H):
-    return np.apply_along_axis(norm, 0 , W) 
-
-def normalize_topics_to_games(W):
-    return np.apply_along_axis(norm, 1 , W) 
-
-def normalize_topics_to_features(H):
-    return np.apply_along_axis(norm, 0 , W) 
-
-def norm(vector):
-    return vector/sum(vector)
-
-
-def generate_topics(feature_matrix):
-    nmf_model = NMF(n_components=47, init='random', random_state=0)
-    W = nmf_model.fit_transform(feature_matrix)
-    H = nmf_model.components_
-    return W, H
-
-def match_topic_to_games(topic_vector):
-    pass
-
-def match_topic_to_features(feature_topic_vector):
-    return zip(feature_topic_vector, feature_matrix.columns.values)
+class Topic_Model(object):
     
+    def __init__(self):
+        pass
+    
+    def create_feature_matrix(self, folder):
+        # import pdb; pdb.set_trace()        
+        self.feature_matrix = data_pipeline(self.folder, 'combine', set=True)
+        return self.feature_matrix
 
-if __name__=='__main__':
+    def write_feature_matrix_csv(self):
+        np.savetxt(self.folder + '/feature_matrix.csv', W, delimiter=',') 
+
+    def write_topics_csv(self, folder):
+        np.savetxt(folder + '/W.csv', W, delimiter=',') 
+        np.savetxt(folder + '/H.csv', H, delimiter=',') 
+
+    def load_topics_csv(self, folder):
+        W = np.loadtxt(folder + '/W.csv', delimiter=',') 
+        H = np.loadtxt(folder + '/H.csv', delimiter=',') 
+        return W, H
+
+    def normalize_games_to_topics(self):
+        return np.apply_along_axis(self.norm, 1, self.W) 
+
+    def normalize_features_to_topics(self):
+        return np.apply_along_axis(self.norm, 0, self.H) 
+
+    def normalize_topics_to_games(self):
+        return np.apply_along_axis(self.norm, 0, self.W) 
+
+    def normalize_topics_to_features(self):
+        return np.apply_along_axis(self.norm, 1, self.H) 
+
+    def norm(vector):
+        return vector/sum(vector)
+
+    def generate_topics(self, k=47):
+        self.nmf_model = NMF(n_components=k, init='random', random_state=0)
+        self.W = self.nmf_model.fit_transform(self.feature_matrix)
+        self.H = self.nmf_model.components_
+        return self.W, self.H
+
+    def match_topic_to_games(self, topic_vector):
+        # grab  
+        pass
+
+    def match_topic_to_features(self, feature_topic_vector):
+        return zip(feature_topic_vector, self.feature_matrix.columns.values)
+        
+
+if __name__ == '__main__':
     folder = sys.argv[1]
-    feature_matrix = create_feature_matrix(folder)
-    W, H = generate_topics(feature_matrix)
-    write_topics_csv('./data/')
+    TM = Topic_Model()
+    feature_matrix = TM.create_feature_matrix(folder)
+    W, H = TM.generate_topics()
+    TM.write_topics_csv(folder)
+    
 
 
