@@ -3,18 +3,31 @@ import json
 from generate_topics import Topic_Model
 import sys
 import pandas as pd
+import numpy as np
 
 
 class User_Profile(object):
+
     def __init__(self, game_collection, W_norm):
-        self.game_collection = game_collection
+        self.game_collection = np.array(game_collection) 
         self.W_norm = W_norm
-        # self.W_normed = generate_topics.normalize_features_to_topics  
         self.num_games = len(game_collection)
     
-    def get_game_model_vectors(self):
+    def get_game_model_vectors(self, feature_matrix_ids):
         # get the W vectors of the collection
-        pass
+        coll_indices = np.searchsorted(self.game_collection, feature_matrix_ids)
+        self.game_vectors = self.W_norm[coll_indices]
+        return self.game_vectors
+
+    def make_weighted_topics(self):
+        self.topic_profile = sum(self.game_vectors/self.num_games)
+
+    def get_top_n_topics(self, n=5):
+        top_n_topics = self.topic_profile.argsort()[::-1]
+        zip(top_n_topics, self.topic_profile[top_n_topics])
+            
+
+    
 
 
 if __name__ == '__main__':
@@ -27,6 +40,7 @@ if __name__ == '__main__':
     
     TM = Topic_Model()
     W, H = TM.load_topics_csv(path)
+    feature_matrix = TM.load_feature_matrix_csv(path)
     W_norm = TM.normalize_topics_to_games()
 
     profiles = []

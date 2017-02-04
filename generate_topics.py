@@ -52,7 +52,7 @@ class Topic_Model(object):
         return self.W, self.H
 
     def match_topic_to_games(self, topic_vector):
-        # grab  
+        # grab the game title from gather json and zip 
         pass
 
     def match_topic_to_features(self, feature_topic_vector):

@@ -9,7 +9,6 @@ class Game_Data_Pipeline(object):
         self.total_dict = {}
 
     def parse_data(j_dict, field):
-        return {int(key): j_dict[key] for key in j_dict.keys()}
         """Takes in dict chunks parses out only the field 
         to save space and time.
 
@@ -40,31 +39,28 @@ class Game_Data_Pipeline(object):
 
     def load_data(location_str):
         f = open(location_str, 'r')
-        j_to_dict = json.load(f)
+        json_to_dict = json.load(f)
         f.close()
-        return(j_to_dict)
+        return(json_to_dict)
 
     def gather_files(self):
         files = os.listdir(self.folder)
         list_of_game_dicts = []
         for f in files:
             if f[:5] == 'games':
-                f = folder + "/" + f
-                parsed_dict = parse_data(load_data(f),field)
+                f = self.folder + "/" + f
+                game_dict = self.load_data(f)
+                parsed_dict = {int(key): game_dict[key] for key in game_dict.keys()}
                 list_of_game_dicts.append(parsed_dict)
         
         return list_of_game_dicts
 
-    def gather_files(folder, field):
-        files = os.listdir(folder)
-        list_of_game_dicts = []
-        for f in files:
-            if f[:5] == 'games':
-                f = folder + "/" + f
-                parsed_dict = parse_data(load_data(f),field)
-                list_of_game_dicts.append(parsed_dict)
-        
-        return list_of_game_dicts
+    def create_total_dict(self):
+        game_list = self.gather_files()
+        self.total_dict = self.merge_dicts(*game_list)
+
+    def get_total_dict(self):
+        return self.total_dict
 
     def unravel_dict(d):
         games = []
