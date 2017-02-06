@@ -26,7 +26,7 @@ class User_Profile(object):
         top_n_topics = self.topic_profile.argsort()[::-1]
         zip(top_n_topics, self.topic_profile[top_n_topics])
             
-
+    
     
 
 

@@ -1,4 +1,4 @@
-from collect_json import data_pipeline
+from game_data_pipeline import Game_Data_Pipeline
 import numpy as np
 import sys
 from sklearn.decomposition import NMF
@@ -6,26 +6,20 @@ from sklearn.decomposition import NMF
 
 class Topic_Model(object):
     
-    def __init__(self):
-        pass
+    def __init__(self, folder):
+        self.folder = folder
+        self.game_data = Game_Data_Pipeline(folder)
+
     
-    def create_feature_matrix(self, folder):
-        # import pdb; pdb.set_trace()        
-        self.feature_matrix = data_pipeline(folder, 'combine', set=True)
+    def load_feature_matrix(self):
+        self.feature_matrix = self.game_data.load_feature_matrix_csv() 
         return self.feature_matrix
 
-    def write_feature_matrix_csv(self, folder):
-        np.savetxt(folder + '/feature_matrix.csv', W, delimiter=',') 
+    def write_topics_csv(self):
+        np.savetxt(self.folder + '/W.csv', self.W, delimiter=',') 
+        np.savetxt(self.folder + '/H.csv', self.H, delimiter=',') 
 
-    def load_feature_matrix_csv(self, folder):
-        self.feature_matrix = np.loadtxt(folder + '/feature_matrix.csv', W, delimiter=',') 
-        return self.feature_matrix
-
-    def write_topics_csv(self, folder):
-        np.savetxt(folder + '/W.csv', self.W, delimiter=',') 
-        np.savetxt(folder + '/H.csv', self.H, delimiter=',') 
-
-    def load_topics_csv(self, folder):
+    def load_topics_csv(self):
         self.W = np.loadtxt(folder + '/W.csv', delimiter=',') 
         self.H = np.loadtxt(folder + '/H.csv', delimiter=',') 
         return self.W, self.H
@@ -40,10 +34,14 @@ class Topic_Model(object):
         return np.apply_along_axis(self.norm, 1, self.W) 
 
     def normalize_topics_to_features(self):
-        return np.apply_along_axis(self.norm, 0, self.H) 
+        return np.apply_along_axis(self.norm, 0, self.H)  
 
-    def norm(vector):
+    def norm(self, vector):
         return vector/sum(vector)
+
+    def cluster_games(self):
+        self.game_clusters = np.argsort(self.W)[:, -1]
+        pass
 
     def generate_topics(self, k=47):
         self.nmf_model = NMF(n_components=k, init='random', random_state=0)
@@ -51,9 +49,9 @@ class Topic_Model(object):
         self.H = self.nmf_model.components_
         return self.W, self.H
 
-    def match_topic_to_games(self, topic_vector):
-        # grab the game title from gather json and zip 
-        pass
+    def match_topic_to_games(self, game_topic_vector):
+        # grab the game title from gather json and zip
+        return zip(game_topic_vector, self.feature_matrix.index.values)
 
     def match_topic_to_features(self, feature_topic_vector):
         return zip(feature_topic_vector, self.feature_matrix.columns.values)
