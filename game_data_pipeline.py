@@ -2,7 +2,7 @@ import json
 import os
 import pandas as pd
 import sys
-
+import numpy as np
 
 class Game_Data_Pipeline(object):
 
@@ -51,6 +51,8 @@ class Game_Data_Pipeline(object):
         for id_, game in d.iteritems():
             for feature in feature_list:
                 for word in game[feature]:
+                    if word == 'Dice':
+                        word = 'Dice Rolling'
                     games.append(id_)
                     categories.append(word)
         ones = [1]*len(games)

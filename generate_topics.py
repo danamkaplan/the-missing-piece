@@ -13,16 +13,14 @@ class Topic_Model(object):
     
     def load_feature_matrix(self):
         self.feature_matrix = self.game_data.load_feature_matrix_csv() 
-        return self.feature_matrix
 
     def write_topics_csv(self):
         np.savetxt(self.folder + '/W.csv', self.W, delimiter=',') 
         np.savetxt(self.folder + '/H.csv', self.H, delimiter=',') 
 
     def load_topics_csv(self):
-        self.W = np.loadtxt(folder + '/W.csv', delimiter=',') 
-        self.H = np.loadtxt(folder + '/H.csv', delimiter=',') 
-        return self.W, self.H
+        self.W = np.loadtxt(self.folder + '/W.csv', delimiter=',') 
+        self.H = np.loadtxt(self.folder + '/H.csv', delimiter=',') 
 
     def normalize_games_to_topics(self):
         return np.apply_along_axis(self.norm, 0, self.W) 
@@ -41,6 +39,7 @@ class Topic_Model(object):
 
     def cluster_games(self):
         self.game_clusters = np.argsort(self.W)[:, -1]
+        self.game_to_cluster = zip(self.game_clusters, self.feature_matrix.index.values)
         pass
 
     def generate_topics(self, k=47):
@@ -55,7 +54,10 @@ class Topic_Model(object):
 
     def match_topic_to_features(self, feature_topic_vector):
         return zip(feature_topic_vector, self.feature_matrix.columns.values)
-        
+    
+    def get_gameid_to_index(self):
+        feature_matrix_ids = self.feature_matrix.index.values
+        return {game_id: index[0] for index, game_id in np.ndenumerate(feature_matrix_ids)}
 
 if __name__ == '__main__':
     folder = sys.argv[1]

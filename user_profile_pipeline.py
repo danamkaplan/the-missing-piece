@@ -13,9 +13,10 @@ class User_Profile(object):
         self.W_norm = W_norm
         self.num_games = len(game_collection)
     
-    def get_game_model_vectors(self, feature_matrix_ids):
+    def get_game_model_vectors(self, game_index_dict):
         # get the W vectors of the collection
-        coll_indices = np.searchsorted(self.game_collection, feature_matrix_ids)
+        # game_index_dict = TM.game_data.get_gameid_to_index()
+        coll_indices = [agme_index_dict[id_] for id_ in self.game_collection]
         self.game_vectors = self.W_norm[coll_indices]
         return self.game_vectors
 
@@ -28,8 +29,7 @@ class User_Profile(object):
             
     
     
-
-
+ 
 if __name__ == '__main__':
     # get a list of User_Profiles
     # model them somehow
@@ -39,13 +39,16 @@ if __name__ == '__main__':
     f.close()
     
     TM = Topic_Model()
-    W, H = TM.load_topics_csv(path)
-    feature_matrix = TM.load_feature_matrix_csv(path)
+    TM.load_topics_csv()
+    TM.load_feature_matrix()
+    game_index_dict = TM.get_gameid_to_index()
+
     W_norm = TM.normalize_topics_to_games()
 
     profiles = []
     for user_name in collection_dict.keys():
         collection = collection_dict[user_name]
-        profiles.append(User_Profile, collection, )
+        profiles.append(User_Profile(collection, W_norm))
 
     game_titles = merge_dicts(*gather_files(folder, 'name'))
+    '''
