@@ -1,3 +1,4 @@
+from __future__ import division
 from game_data_pipeline import Game_Data_Pipeline
 import numpy as np
 import sys
@@ -35,7 +36,7 @@ class Topic_Model(object):
         return np.apply_along_axis(self.norm, 0, self.H)  
 
     def norm(self, vector):
-        return vector/sum(vector)
+        return vector/float(sum(vector))
 
     def cluster_games(self):
         self.game_clusters = np.argsort(self.W)[:, -1]

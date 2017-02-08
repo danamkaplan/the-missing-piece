@@ -16,7 +16,12 @@ class User_Profile(object):
     def get_game_model_vectors(self, game_index_dict):
         # get the W vectors of the collection
         # game_index_dict = TM.game_data.get_gameid_to_index()
-        coll_indices = [agme_index_dict[id_] for id_ in self.game_collection]
+        coll_indices = [] 
+        for id_ in self.game_collection:
+            try:
+                coll_indices.append(game_index_dict[id_])
+            except:
+                pass
         self.game_vectors = self.W_norm[coll_indices]
         return self.game_vectors
 
@@ -25,11 +30,18 @@ class User_Profile(object):
 
     def get_top_n_topics(self, n=5):
         top_n_topics = self.topic_profile.argsort()[::-1]
-        zip(top_n_topics, self.topic_profile[top_n_topics])
+        return zip(top_n_topics, self.topic_profile[top_n_topics])
+
+    def add_to_collection(self, game_id, game_index_dict):
+        self.game_collection = np.append(self.game_collection, game_id)
+        self.num_games += 1
+        self.get_game_model_vectors(game_index_dict)
+        self.make_weighted_topics()
+
             
     
     
- 
+''' 
 if __name__ == '__main__':
     # get a list of User_Profiles
     # model them somehow
