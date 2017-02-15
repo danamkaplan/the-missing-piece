@@ -2,7 +2,6 @@ import json
 import os
 import pandas as pd
 import sys
-import numpy as np
 
 class Game_Data_Pipeline(object):
 
