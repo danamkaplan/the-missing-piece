@@ -13,19 +13,38 @@ class Game_Data_Pipeline(object):
         """
         Given any number of dicts, shallow copy and merge into a new dict,
         precedence goes to key value pairs in latter dicts.
+
+        input:
+            *dict_args: arbitrary number of dictionaries
+
+        output:
+            merged_dict: single dictionary containing all keys at the root level
         """
+
         result = {}
         for dictionary in dict_args:
             result.update(dictionary)
         return result
 
     def load_data(self, location_str):
+        """
+        
+        input:
+
+        output:
+        """
         f = open(location_str, 'r')
         json_to_dict = json.load(f)
         f.close()
         return(json_to_dict)
 
     def gather_files(self):
+        """
+        
+        input:
+
+        output:
+        """
         files = os.listdir(self.folder)
         list_of_game_dicts = []
         for f in files:
@@ -34,17 +53,35 @@ class Game_Data_Pipeline(object):
                 game_dict = self.load_data(f)
                 parsed_dict = {int(key): game_dict[key] for key in game_dict.keys()}
                 list_of_game_dicts.append(parsed_dict)
-        
+
         return list_of_game_dicts
 
     def create_total_dict(self):
+        """
+        
+        input:
+
+        output:
+        """
         game_list = self.gather_files()
         self.total_dict = self.merge_dicts(*game_list)
 
     def get_total_dict(self):
+        """
+        
+        input:
+
+        output:
+        """
         return self.total_dict
 
     def unravel_dict(self, d, feature_list):
+        """
+        
+        input:
+
+        output:
+        """
         games = []
         categories = []
         for id_, game in d.iteritems():
@@ -58,11 +95,23 @@ class Game_Data_Pipeline(object):
         return games, categories, ones
 
     def pivot_features(self, ids_, features, ones):
+        """
+        
+        input:
+
+        output:
+        """
         df = pd.DataFrame({'ids': ids_, 'features': features, 'ones': ones})
         feature_matrix = df.pivot_table(index='ids', columns='features', values='ones')
         return feature_matrix
 
     def create_set_features(self, feature_list):
+        """
+        
+        input:
+
+        output:
+        """
         self.feature_matrix = self.pivot_features(*self.unravel_dict(self.total_dict, feature_list))
 
     def add_feature(self, feature):
@@ -70,8 +119,8 @@ class Game_Data_Pipeline(object):
         Add a feature to final feature matrix
 
         Params:
-            feature_key: String. Dict key of the feature. 
-        
+            feature_key: String. Dict key of the feature.
+
         Returns:
             None
         """
@@ -85,22 +134,37 @@ class Game_Data_Pipeline(object):
         """
         Returns game_id and feature as a dict
 
-        Params: 
-            feature_key: String. Dict key of the feature. 
-        
+        Params:
+            feature_key: String. Dict key of the feature.
+
         Returns:
         """
         d = self.total_dict
         return {int(key): d[key][feature] for key in d.keys()}
 
     def write_feature_matrix_csv(self):
+        """
+        
+        input:
+
+        output:
+        """
         f = self.folder + '/feature_matrix.csv'
         self.feature_matrix.fillna(0, inplace=True)
         self.feature_matrix.to_csv(f, encoding='utf-8')
 
     def load_feature_matrix_csv(self):
+        """
+        Load saved csv of the feature_matrix in a pandas dataframe.
+
+        input:
+            None
+
+        output:
+            feature_matrix: Dataframe from th
+        """
         f = self.folder + '/feature_matrix.csv'
-        self.feature_matrix = pd.read_csv(f, encoding='utf-8', index_col='ids') 
+        self.feature_matrix = pd.read_csv(f, encoding='utf-8', index_col='ids')
         return self.feature_matrix
 
 
@@ -108,4 +172,3 @@ if __name__ == '__main__':
     folder = sys.argv[1]
     data = Game_Data_Pipeline(folder)
     data.create_total_dict()
-    
