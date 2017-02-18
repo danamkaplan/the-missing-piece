@@ -15,6 +15,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -24,6 +25,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -34,6 +36,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -44,6 +47,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -53,6 +57,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -62,6 +67,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -71,6 +77,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
@@ -107,6 +114,7 @@ class Topic_Model(object):
         """
         
         input:
+            k: amount of topics to generate
 
         output:
         """
@@ -138,6 +146,7 @@ class Topic_Model(object):
         """
         
         input:
+            None
 
         output:
         """
