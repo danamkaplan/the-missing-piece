@@ -18,9 +18,14 @@ From my interest and experience in the board game space, I know that people tend
 ### Method:
 Given my assumptions above, I decided to utilize topic modeling, specifically Non-Negative Matrix Factorization (NMF), to unearth the relationships between the game features. While it initially sounds like a clustering problem, there is a good amount of interplay between 'feature clusters'.
 
-NMF was chosen because it can do 4 very important things in this project
+NMF was chosen because it can do 4 very important things in this project:
 
-### Todo:
+1. Find latent features of the topics
+	* NMF has very interpretable results. After finding K 
+2. fdsaf
+3. 
+
+### Future Work:
  * Finish up the [recommender](./recommender.py) script to actually automate the  recommendation work (profiling a user, calculating the cosine distances, ranking games,etc...)
  * Replace the collection of json files as an actual DB, to help protect against future headaches. 
  * Make entire project into a Flask app

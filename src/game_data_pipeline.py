@@ -28,10 +28,12 @@ class Game_Data_Pipeline(object):
 
     def load_data(self, location_str):
         """
-        
-        input:
+        Abstracts the json loading
 
+        input:
+            location_str: location of the json file
         output:
+            dictionary of the json loaded
         """
         f = open(location_str, 'r')
         json_to_dict = json.load(f)
@@ -40,10 +42,14 @@ class Game_Data_Pipeline(object):
 
     def gather_files(self):
         """
+        Finds all game json files in self.folder and loads them all in a 
+        big list of separate dicts.
         
         input:
-
+            None
         output:
+            list_of_game_dicts: list of game dictionaries separated by json
+            files. 
         """
         files = os.listdir(self.folder)
         list_of_game_dicts = []
@@ -58,29 +64,51 @@ class Game_Data_Pipeline(object):
 
     def create_total_dict(self):
         """
+        Creates a final total dictionary from the list of game dicts.
         
         input:
-
+            None
         output:
+            None
         """
         game_list = self.gather_files()
         self.total_dict = self.merge_dicts(*game_list)
 
     def get_total_dict(self):
         """
-        
-        input:
-
-        output:
+            Retrieval function for self.total_dict
         """
         return self.total_dict
 
     def unravel_dict(self, d, feature_list):
         """
-        
+        For some game features, such as 'mechanics', the value in the dict is a
+        list of strings. This function separates the the list into a new row
+        for each string, and adds a column of 1's for easy pivoting later. 
+
+        E.g. it would turn this dictionary:
+        {
+        101:
+            {'mechanics': ['cards', 'negotiation', 'territory control']},
+        102:
+            {'mechanics': ['cards']}    
+        }
+            
+        into
+
+        101,'cards', 1
+        101,'negotion', 1
+        101,'territory control', 1 
+        201,'cards', 1
+
         input:
+            d: dictionary to unravel
+            feature_list: names of the feature keys to count
 
         output:
+            games: ids of games
+            categories: the elements unraveled
+            ones: 1
         """
         games = []
         categories = []
