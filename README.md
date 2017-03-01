@@ -10,7 +10,7 @@ A recommender system built with [BoardGameGeek's](https://www.boardgamegeek.com/
 
 From my interest and experience in the board game space, I know that people tend to conceptualize and discuss games in the language of features. E.g.
 	
- * [Thunderstone](https://www.boardgamegeek.com/boardgame/53953/thunderstone) is a *deckbuilder* that has elements of **fantasy**, **hand management**, and **fighting**. 
+ * [Thunderstone](https://www.boardgamegeek.com/boardgame/53953/thunderstone) is a **deckbuilder** that has elements of **fantasy**, **hand management**, and **fighting**. 
  * There are a lot of popular **[worker placement](https://www.boardgamegeek.com/boardgamemechanic/2082/worker-placement)** games, but there is a strong connection between the themes of **farming** and **civilization building** to this mechanic.  
 
 	
@@ -20,10 +20,23 @@ Given my assumptions above, I decided to utilize topic modeling, specifically No
 
 NMF was chosen because it can do 4 very important things in this project:
 
-1. Find latent features of the topics
-	* NMF has very interpretable results. After finding K 
-2. fdsaf
-3. 
+1. **Find latent features of the topics:**
+	* NMF has very interpretable results. After finding an appropriate k (47 in this case), I could find the topic "weights" for both individual games and individual features. 
+	* For example, you can see in the top 5 feature weights for Topic #18, there is a strong hinting at "Yahtzee" style games. 
+  
+| Weight of Feature to Topic | Feature | 
+|--------------------|------------|
+|0.9441 | 'Dice Rolling' |
+|0.0230| 'Press Your Luck'|
+|0.0095 |'Paper-and-Pencil'|
+|0.0087| 'Betting/Wagering'|
+|0.0039| 'Trading'|
+
+
+
+2. **Create a topic distribution profile for a user's collection:**
+3. ****
+4. **This helps in calculating distances by reducing dimenions (in this case 135 to 47).**
 
 ### Future Work:
  * Finish up the [recommender](./recommender.py) script to actually automate the  recommendation work (profiling a user, calculating the cosine distances, ranking games,etc...)

@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import sys
 
+
 class Game_Data_Pipeline(object):
 
     def __init__(self, folder):
@@ -18,7 +19,7 @@ class Game_Data_Pipeline(object):
             *dict_args: arbitrary number of dictionaries
 
         output:
-            merged_dict: single dictionary containing all keys at the root level
+            merged_dict: single dict containing all keys at the root level
         """
 
         result = {}
@@ -124,10 +125,19 @@ class Game_Data_Pipeline(object):
 
     def pivot_features(self, ids_, features, ones):
         """
+        Takes in the unraveled output from the unravel_dict() method, and
+        pivots it into matrix of 0 or 1 for containing or not. (Note: this
+        drops games with no features in the unraveled set, which is fine,
+        because we don't wan't to train on them anyways.)
         
         input:
-
+            (from the unravel_dict() method)
+            ids_: game ids
+            features: the unraveled features
+            ones: 1 for every row
         output:
+            feature_matrix: 0 or 1 for the game ids if they have an unraveled
+                element or not
         """
         df = pd.DataFrame({'ids': ids_, 'features': features, 'ones': ones})
         feature_matrix = df.pivot_table(index='ids', columns='features', values='ones')
@@ -172,10 +182,12 @@ class Game_Data_Pipeline(object):
 
     def write_feature_matrix_csv(self):
         """
-        
-        input:
+        Saves feature_matrix df to a csv.  
 
+        input:
+            None
         output:
+            None
         """
         f = self.folder + '/feature_matrix.csv'
         self.feature_matrix.fillna(0, inplace=True)
