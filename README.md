@@ -21,9 +21,10 @@ Given my assumptions above, I decided to utilize topic modeling, specifically No
 NMF was chosen because it can do 4 very important things in this project:
 
 1. **Find latent features of the topics:**
-	* NMF has very interpretable results. After finding an appropriate k (47 in this case), I could find the topic "weights" for both individual games and individual features. 
+	* NMF has very interpretable results. After finding an appropriate k (47 in this case), I could get the topic "weights" for both individual games and individual features. 
 	* For example, you can see in the top 5 feature weights for Topic #18, there is a strong hinting at "Yahtzee" style games. 
-  
+<center>  
+
 | Weight of Feature to Topic | Feature | 
 |--------------------|------------|
 |0.9441 | 'Dice Rolling' |
@@ -32,11 +33,16 @@ NMF was chosen because it can do 4 very important things in this project:
 |0.0087| 'Betting/Wagering'|
 |0.0039| 'Trading'|
 
+</center>
 
 
 2. **Create a topic distribution profile for a user's collection:**
-3. ****
+<center>![topic dist](./img/danamkaplan_topicdist.png)</center>
+3. **Cluster each game into the topic that has the heighest weight in it**
 4. **This helps in calculating distances by reducing dimenions (in this case 135 to 47).**
+
+### Recommendation Algorithm:
+While [BGG's API](https://boardgamegeek.com/wiki/page/BGG_XML_API2) is fantastic at getting information for single games, they highly discourage iterating through user data. 
 
 ### Future Work:
  * Finish up the [recommender](./recommender.py) script to actually automate the  recommendation work (profiling a user, calculating the cosine distances, ranking games,etc...)
