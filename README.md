@@ -60,21 +60,23 @@ Therefore, I used a heuristic style method to create game recommendations based 
 
 1. Create a 'User Topic Profile'
 
-  1. Get topic weights from their game collection.
+    -- Get topic weights from their game collection.
 
 2. Explore other clusters.
 
-  1. Filter out all games from the clusters in a user's top 5 topics.
-  2. There should only be games left that would fatten the topic distribution tail.
+    -- Filter out all games from the clusters in a user's top 5 topics.
+
+    -- There should only be games left that would fatten the topic distribution tail.
 
 3. Rank within each cluster on Cosine Similarity.
 
-  1. Average the reduced features in the user's current collection, to get their "preference" vector.
-  2. Rank all other games by cosine similarity to that vector.
+    -- Average the reduced features in the user's current collection, to get their "preference" vector.
+
+    -- Rank all other games by cosine similarity to that vector.
 
 4. Return the top in each cluster.
 
-  1. Get the highest ranked game from each other cluster.
+    -- Get the highest ranked game from each other cluster.
 
 5. Suggest those games in rank order.
 
