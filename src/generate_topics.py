@@ -1,6 +1,7 @@
 from __future__ import division
 from game_data_pipeline import Game_Data_Pipeline
 import numpy as np
+import pandas as pd
 import sys
 from sklearn.decomposition import NMF
 
@@ -95,7 +96,7 @@ class Topic_Model(object):
         """
         return vector/float(sum(vector))
 
-    def cluster_games(self):
+    def cluster_games(self, add_cluster_to_df=False):
         """
         Assigns the topic cluster (by topic index) to each game_id,
         based on the topic the game has the highest affinity with.
@@ -108,6 +109,14 @@ class Topic_Model(object):
         """
         self.game_clusters = np.argsort(self.W)[:, -1]
         self.game_to_cluster = zip(self.game_clusters, self.feature_matrix.index.values)
+        # import pdb; pdb.set_trace()
+        if add_cluster_to_df:
+            cluster_games = pd.DataFrame(self.game_to_cluster)
+            cluster_games.rename({0:'topic', 1:'game_id'}, axis=1, inplace=True)
+            df = self.feature_matrix.merge(cluster_games, left_index=True, right_on='game_id')
+            df.drop('game_id', axis=1, inplace=True)
+            return df
+
         return self.game_to_cluster
 
     def generate_topics(self, k=47):
